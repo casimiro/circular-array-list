@@ -47,12 +47,40 @@ public class CircularArrayList<E> extends AbstractList<E>
 		return true;
 	}
 
+	@Override
+	public void add(int index, E element) {
+		if (index > size || index < 0) {
+			throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
+		}
+		ensureCapacity(size + 1);
+		if (index == size) {
+			elementData[tail++] = element;
+		} else if (index == 0) {
+			--head;
+			elementData[elementData.length + head] = element;
+		} else {
+			int pos = ((elementData.length + head) + index) % elementData.length;
+			if (pos > elementData.length + head) {
+				System.arraycopy(elementData, elementData.length + head, 
+						elementData, elementData.length + head - 1, index);
+				
+				elementData[pos - 1] = element;
+				--head;
+			} else {
+				System.arraycopy(elementData, pos, elementData, pos + 1, size - index);
+				elementData[pos] = element;
+				tail++;
+			}
+		}
+		size++;
+	}
+	
 	private void ensureCapacity(int minCapacity) {
 		int oldCapacity = elementData.length;
 
 		if (minCapacity > oldCapacity) {
 			Object[] oldData = elementData;
-			int newCapacity = (oldCapacity * 3)/2 + 1;
+			int newCapacity = (oldCapacity * 3) / 2 + 1;
 			if (newCapacity < minCapacity) {
 				newCapacity = minCapacity;
 			}
@@ -70,4 +98,3 @@ public class CircularArrayList<E> extends AbstractList<E>
 	}
 
 }
-
